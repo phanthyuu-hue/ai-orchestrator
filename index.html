@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#6366f1">
+    <meta name="description" content="複数のAIを自動で組み合わせる次世代AIオーケストレーター">
+    <meta property="og:title" content="AI Orchestrator - 複数AIの自動連携">
+    <meta property="og:description" content="やりたいことを伝えるだけで、最適なAIが自動で連携して結果を出します">
+    <meta property="og:type" content="website">
+    <link rel="manifest" href="manifest.json">
+    <title>AI Orchestrator - 複数AIの自動連携</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --card-bg: #ffffff;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+        
+        .app-container {
+            max-width: 100%;
+            min-height: 100vh;
+            background: white;
+        }
+        
+        .header {
+            background: var(--bg-gradient);
+            color: white;
+            padding: 24px 20px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 1.75em;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 0.95em;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+        
+        .beta-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+        
+        .main-content {
+            padding: 24px 20px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        /* 初回説明バナー */
+        .welcome-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .welcome-banner h2 {
+            font-size: 1.3em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .welcome-banner p {
+            line-height: 1.6;
+            margin-bottom: 8px;
+            opacity: 0.95;
+        }
+        
+        .welcome-banner ul {
+            margin: 12px 0 12px 20px;
+            line-height: 1.8;
+        }
+        
+        .welcome-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 12px;
+            font-weight: 600;
+        }
+        
+        /* API設定 */
+        .config-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .config-toggle {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+        }
+        
+        .config-toggle h2 {
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .config-content {
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .config-content.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .api-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .api-tab {
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.3s;
+        }
+        
+        .api-tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .api-tab-content {
+            display: none;
+        }
+        
+        .api-tab-content.active {
+            display: block;
+        }
+        
+        .api-key-group {
+            margin-bottom: 16px;
+        }
+        
+        .api-key-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95em;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .api-key-group input {
+            width: 100%;
+            padding: 12px 40px 12px 12px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .api-key-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .toggle-visibility {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+        
+        .api-key-group small {
+            display: block;
+            margin-top: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85em;
+            line-height: 1.4;
+        }
+        
+        .api-key-group a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--primary);
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        
+        .info-box strong {
+            color: var(--primary);
+        }
+        
+        /* 入力エリア */
+        .input-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .input-card h3 {
+            font-size: 1.1em;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .input-card textarea {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1em;
+            resize: vertical;
+            min-height: 140px;
+            font-family: inherit;
+            line-height: 1.6;
+            transition: all 0.3s;
+        }
+        
+        .input-card textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .input-examples {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 10px;
+            font-size: 0.88em;
+            line-height: 1.8;
+        }
+        
+        .input-examples strong {
+            color: var(--text-primary);
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .example-item {
+            padding: 6px 0;
+            color: var(--text-secondary);
+        }
+        
+        .button {
+            width: 100%;
+            padding: 16px;
+            background: var(--bg-gradient);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+        
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* 処理状況 */
+        .processing-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            display: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        
+        .processing-card.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .processing-card h3 {
+            font-size: 1.1em;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-step {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px;
+            margin-bottom: 12px;
+            border-radius: 10px;
+            background: #f9fafb;
+            transition: all 0.3s;
+        }
+        
+        .status-step.active {
+            background: #eff6ff;
+            border-left: 4px solid var(--primary);
+            padding-left: 10px;
+        }
+        
+        .status-step.completed {
+            background: #f0fdf4;
+            border-left: 4px solid var(--success);
+            padding-left: 10px;
+        }
+        
+        .status-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .status-icon.pending {
+            background: #e5e7eb;
+            color: #9ca3af;
+        }
+        
+        .status-icon.active {
+            background: var(--primary);
+            color: white;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-icon.completed {
+            background: var(--success);
+            color: white;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.05); }
+        }
+        
+        .status-text {
+            flex: 1;
+        }
+        
+        .status-text strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 1em;
+        }
+        
+        .status-text small {
+            color: var(--text-secondary);
+            font-size: 0.88em;
+        }
+        
+        /* 結果表示 */
+        .results-section {
+            margin-top: 24px;
+        }
+        
+        .result-card {
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            animation: slideDown 0.4s ease;
+        }
+        
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .result-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-badge {
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 0.8em;
+            font-weight: 700;
+        }
+        
+        .badge-orchestrator {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+        
+        .badge-code {
+            background: #f0fdf4;
+            color: #166534;
+        }
+        
+        .badge-image {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .copy-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .result-content {
+            color: var(--text-primary);
+            line-height: 1.7;
+            white-space: pre-wrap;
+            font-size: 0.95em;
+        }
+        
+        .code-block {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.88em;
+            margin-top: 12px;
+            line-height: 1.6;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .image-result {
+            margin-top: 16px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .image-result img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        /* エラー表示 */
+        .error-message {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+            line-height: 1.6;
+        }
+        
+        .error-message strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        /* フッター */
+        .footer {
+            background: #f9fafb;
+            padding: 32px 20px;
+            text-align: center;
+            margin-top: 40px;
+            border-top: 2px solid var(--border);
+        }
+        
+        .footer p {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        /* レスポンシブ */
+        @media (min-width: 768px) {
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .main-content {
+                padding: 32px 40px;
+            }
+            
+            .config-card, .input-card, .processing-card, .result-card {
+                padding: 28px;
+            }
+        }
+        
+        /* ローディングアニメーション */
+        .loading-dots {
+            display: inline-block;
+        }
+        
+        .loading-dots span {
+            animation: blink 1.4s infinite both;
+        }
+        
+        .loading-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .loading-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes blink {
+            0%, 80%, 100% { opacity: 0; }
+            40% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>
+                <span>🤖</span>
+                AI Orchestrator
+            </h1>
+            <p>複数のAIを自動で組み合わせて最適な結果を提供</p>
+            <div class="beta-badge">FREE BETA</div>
+        </div>
+        
+        <div class="main-content">
+            <!-- 初回説明 -->
+            <div class="welcome-banner" id="welcomeBanner">
+                <h2>👋 はじめまして！</h2>
+                <p>AI Orchestratorは、あなたの指示に応じて複数のAIを自動で連携させるツールです。</p>
+                <ul>
+                    <li>📝 <strong>コード生成が必要？</strong> → 自動でプログラミングAIを呼び出します</li>
+                    <li>🎨 <strong>画像が必要？</strong> → 自動で画像生成AIを呼び出します</li>
+                    <li>🔄 <strong>複数のタスク？</strong> → すべて自動で連携実行します</li>
+                </ul>
+                <p><strong>使い方:</strong> まずAPIキーを設定してください。その後、やりたいことを自由に入力するだけ！</p>
+                <button class="welcome-close" onclick="closeWelcome()">理解しました</button>
+            </div>
+            
+            <!-- API設定 -->
+            <div class="config-card">
+                <div class="config-toggle" onclick="toggleConfig()">
+                    <h2>⚙️ API設定</h2>
+                    <span id="configArrow" style="font-size: 1.2em; color: var(--text-secondary);">▼</span>
+                </div>
+                <div class="config-content" id="configContent">
+                    <div class="api-tabs">
+                        <button class="api-tab active" onclick="switchTab('claude')">主要LLM（必須）</button>
+                        <button class="api-tab" onclick="switchTab('optional')">専門AI（任意）</button>
+                    </div>
+                    
+                    <div class="api-tab-content active" id="claudeTab">
+                        <div class="api-key-group">
+                            <label for="orchestratorKey">🧠 Claude API Key</label>
+                            <div class="input-with-icon">
+                                <input type="password" id="orchestratorKey" placeholder="sk-ant-api...">
+                                <button class="toggle-visibility" onclick="togglePasswordVisibility('orchestratorKey')">👁️</button>
+                            </div>
+                            <small>タスクを分析・管理するメインAI。<a href="https://console.anthropic.com/" target="_blank">ここで取得</a></small>
+                        </div>
+                        <div class="info-box">
+                            <strong>💡 これだけあれば動作します！</strong><br>
+                            専門AIは後から追加可能です。まずはClaudeのAPIキーだけ設定してください。
+                        </div>
+                    </div>
+                    
+                    <div class="api-tab-content" id="optionalTab">
+                        <div class="api-key-group">
+                            <label for="codegenKey">💻 OpenAI API Key（コード生成・画像生成）</label>
+                            <div class="input-with-icon">
+                                <input type="password" id="codegenKey" placeholder="sk-proj-...">
+                                <button class="toggle-visibility" onclick="togglePasswordVisibility('codegenKey')">👁️</button>
+                            </div>
+                            <small>プログラム作成や画像生成に使用。<a href="https://platform.openai.com/api-keys" target="_blank">ここで取得</a></small>
+                        </div>
+                        <div class="info-box">
+                            <strong>📝 注意:</strong> コード生成や画像生成が必要な場合のみ設定してください。なくても基本的な会話や分析は可能です。
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 入力エリア -->
+            <div class="input-card">
+                <h3>✨ やりたいことを入力</h3>
+                <textarea id="userInput" placeholder="自由に入力してください..."></textarea>
+                <div class="input-examples">
+                    <strong>💡 例えばこんなことができます:</strong>
+                    <div class="example-item">• 「Pythonでデータ分析のコードを書いて」</div>
+                    <div class="example-item">• 「森の中の小屋の画像を生成して」</div>
+                    <div class="example-item">• 「猫のイラストを作って、それを表示するHTMLコードも書いて」</div>
+                    <div class="example-item">• 「最近のAIトレンドについて教えて」</div>
+                </div>
+                <button class="button" id="executeBtn" onclick="executeTask()">
+                    <span>🚀</span>
+                    <span id="buttonText">実行</span>
+                </button>
+            </div>
+            
+            <!-- 処理状況 -->
+            <div class="processing-card" id="processingCard">
+                <h3>⚙️ 処理状況</h3>
+                <div class="status-step" id="step1">
+                    <div class="status-icon pending">1</div>
+                    <div class="status-text">
+                        <strong>タスク分析中</strong>
+                        <small>主要LLMがタスクを理解しています<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></small>
+                    </div>
+                </div>
+                <div class="status-step" id="step2">
+                    <div class="status-icon pending">2</div>
+                    <div class="status-text">
+                        <strong>専門AI選定中</strong>
+                        <small>必要なAIを判断しています<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></small>
+                    </div>
+                </div>
+                <div class="status-step" id="step3">
+                    <div class="status-icon pending">3</div>
+                    <div class="status-text">
+                        <strong>専門AI実行中</strong>
+                        <small>各AIが作業を実行しています<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></small>
+                    </div>
+                </div>
+                <div class="status-step" id="step4">
+                    <div class="status-icon pending">4</div>
+                    <div class="status-text">
+                        <strong>結果統合中</strong>
+                        <small>全ての結果をまとめています<span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 結果表示 -->
+            <div class="results-section" id="resultsSection"></div>
+        </div>
+        
+        <div class="footer">
+            <p>🚀 現在無料ベータ版として公開中 | 2025</p>
+            <p>フィードバックは大歓迎です！</p>
+        </div>
+    </div>
+
+    <script>
+        // 初回表示管理
+        function closeWelcome() {
+            document.getElementById('welcomeBanner').style.display = 'none';
+            localStorage.setItem('welcomeSeen', 'true');
+        }
+        
+        if (localStorage.getItem('welcomeSeen')) {
+            document.getElementById('welcomeBanner').style.display = 'none';
+        }
+        
+        // UI制御
+        function toggleConfig() {
+            const content = document.getElementById('configContent');
+            const arrow = document.getElementById('configArrow');
+            content.classList.toggle('active');
+            arrow.textContent = content.classList.contains('active') ? '▲' : '▼';
+        }
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.api-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.api-tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'claude') {
+                document.querySelector('.api-tab:first-child').classList.add('active');
+                document.getElementById('claudeTab').classList.add('active');
+            } else {
+                document.querySelector('.api-tab:last-child').classList.add('active');
+                document.getElementById('optionalTab').classList.add('active');
+            }
+        }
+        
+        function togglePasswordVisibility(inputId) {
+            const input = document.getElementById(inputId);
+            input.type = input.type === 'password' ? 'text' : 'password';
+        }
+        
+        function updateStepStatus(stepNum, status) {
+            const step = document.getElementById(`step${stepNum}`);
+            const icon = step.querySelector('.status-icon');
+            
+            step.classList.remove('active', 'completed');
+            icon.classList.remove('pending', 'active', 'completed');
+            
+            if (status === 'active') {
+                step.classList.add('active');
+                icon.classList.add('active');
+            } else if (status === 'completed') {
+                step.classList.add('completed');
+                icon.classList.add('completed');
+                icon.textContent = '✓';
+            }
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('コピーしました！');
+            });
+        }
+        
+        // メイン処理
+        async function executeTask() {
+            const userInput = document.getElementById('userInput').value.trim();
+            const orchestratorKey = document.getElementById('orchestratorKey').value.trim();
+            const codegenKey = document.getElementById('codegenKey').value.trim();
+            
+            if (!userInput) {
+                alert('やりたいことを入力してください');
+                return;
+            }
+            
+            if (!orchestratorKey) {
+                alert('Claude APIキーを設定してください（⚙️ API設定を開く）');
+                toggleConfig();
+                return;
+            }
+            
+            // UI初期化
+            const executeBtn = document.getElementById('executeBtn');
+            const buttonText = document.getElementById('buttonText');
+            executeBtn.disabled = true;
+            buttonText.textContent = '処理中...';
+            
+            document.getElementById('processingCard').classList.add('active');
+            document.getElementById('resultsSection').innerHTML = '';
+            
+            // ステップリセット
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`step${i}`);
+                const icon = step.querySelector('.status-icon');
+                step.classList.remove('active', 'completed');
+                icon.classList.remove('active', 'completed');
+                icon.classList.add('pending');
+                icon.textContent = i;
+            }
+            
+            try {
+                // ステップ1: タスク分析
+                updateStepStatus(1, 'active');
+                const taskAnalysis = await analyzeTask(orchestratorKey, userInput);
+                updateStepStatus(1, 'completed');
+                
+                // ステップ2: 専門AI選定
+                updateStepStatus(2, 'active');
+                await new Promise(resolve => setTimeout(resolve, 500));
+                updateStepStatus(2, 'completed');
+                
+                // ステップ3: 専門AI実行
+                updateStepStatus(3, 'active');
+                const specializedResults = await executeSpecializedAIs(
+                    taskAnalysis,
+                    codegenKey
+                );
+                updateStepStatus(3, 'completed');
+                
+                // ステップ4: 結果統合
+                updateStepStatus(4, 'active');
+                displayResults(taskAnalysis, specializedResults);
+                updateStepStatus(4, 'completed');
+                
+            } catch (error) {
+                document.getElementById('resultsSection').innerHTML = `
+                    <div class="error-message">
+                        <strong>❌ エラーが発生しました</strong>
+                        ${error.message}
+                    </div>
+                `;
+            } finally {
+                executeBtn.disabled = false;
+                buttonText.textContent = '実行';
+            }
+        }
+        
+        async function analyzeTask(apiKey, userInput) {
+            const response = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-key': apiKey,
+                    'anthropic-version': '2023-06-01'
+                },
+                body: JSON.stringify({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 2048,
+                    messages: [{
+                        role: 'user',
+                        content: `あなたはAIオーケストレーターです。ユーザーのリクエストを分析し、どの専門AIが必要かを判断してください。
+
+利用可能な専門AI:
+- CODE_GEN: プログラミング・コード生成（Python, JavaScript, HTML/CSS等）
+- IMAGE_GEN: 画像生成（DALL-E 3使用）
+
+ユーザーリクエスト: ${userInput}
+
+以下のJSON形式で回答してください:
+{
+  "analysis": "タスクの詳細分析（ユーザーに見せる説明文）",
+  "required_ais": ["CODE_GEN", "IMAGE_GEN"],
+  "tasks": {
+    "CODE_GEN": "具体的な指示内容",
+    "IMAGE_GEN": "具体的な指示内容"
+  }
+}
+
+必要なAIがない場合は、required_aisを空配列にしてください。
+analysisには親切で分かりやすい説明を書いてください。`
+                    }]
+                })
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(`タスク分析に失敗: ${error.error?.message || 'APIキーを確認してください'}`);
+            }
+            
+            const data = await response.json();
+            const content = data.content[0].text;
+            
+            // JSONを抽出
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) {
+                throw new Error('分析結果の解析に失敗しました');
+            }
+            
+            return JSON.parse(jsonMatch[0]);
+        }
+        
+        async function executeSpecializedAIs(taskAnalysis, apiKey) {
+            const results = {};
+            
+            // コード生成
+            if (taskAnalysis.required_ais.includes('CODE_GEN')) {
+                if (!apiKey) {
+                    results.CODE_GEN = {
+                        error: 'OpenAI APIキーが設定されていません。⚙️ API設定から追加してください。'
+                    };
+                } else {
+                    try {
+                        results.CODE_GEN = await generateCode(apiKey, taskAnalysis.tasks.CODE_GEN);
+                    } catch (error) {
+                        results.CODE_GEN = { error: error.message };
+                    }
+                }
+            }
+            
+            // 画像生成
+            if (taskAnalysis.required_ais.includes('IMAGE_GEN')) {
+                if (!apiKey) {
+                    results.IMAGE_GEN = {
+                        error: 'OpenAI APIキーが設定されていません。⚙️ API設定から追加してください。'
+                    };
+                } else {
+                    try {
+                        results.IMAGE_GEN = await generateImage(apiKey, taskAnalysis.tasks.IMAGE_GEN);
+                    } catch (error) {
+                        results.IMAGE_GEN = { error: error.message };
+                    }
+                }
+            }
+            
+            return results;
+        }
+        
+        async function generateCode(apiKey, instruction) {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-4',
+                    messages: [{
+                        role: 'user',
+                        content: `以下の指示に従ってコードを生成してください。コメントも含めて、分かりやすく書いてください。\n\n${instruction}`
+                    }],
+                    max_tokens: 2000
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('コード生成に失敗しました。APIキーを確認してください。');
+            }
+            
+            const data = await response.json();
+            return { code: data.choices[0].message.content };
+        }
+        
+        async function generateImage(apiKey, instruction) {
+            const response = await fetch('https://api.openai.com/v1/images/generations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'dall-e-3',
+                    prompt: instruction,
+                    n: 1,
+                    size: '1024x1024'
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('画像生成に失敗しました。APIキーを確認してください。');
+            }
+            
+            const data = await response.json();
+            return { 
+                url: data.data[0].url,
+                prompt: data.data[0].revised_prompt
+            };
+        }
+        
+        function displayResults(taskAnalysis, specializedResults) {
+            const resultsSection = document.getElementById('resultsSection');
+            let html = '';
+            
+            // タスク分析結果
+            html += `
+                <div class="result-card">
+                    <div class="result-header">
+                        <div class="result-title">
+                            <span class="result-badge badge-orchestrator">🎯 タスク分析</span>
+                        </div>
+                    </div>
+                    <div class="result-content">${escapeHtml(taskAnalysis.analysis)}</div>
+                </div>
+            `;
+            
+            // コード生成結果
+            if (specializedResults.CODE_GEN) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="result-title">
+                                <span class="result-badge badge-code">💻 生成されたコード</span>
+                            </div>
+                            ${!specializedResults.CODE_GEN.error ? `<button class="copy-btn" onclick="copyToClipboard(\`${specializedResults.CODE_GEN.code.replace(/`/g, '\\`')}\`)">コピー</button>` : ''}
+                        </div>
+                `;
+                
+                if (specializedResults.CODE_GEN.error) {
+                    html += `<div class="error-message">${specializedResults.CODE_GEN.error}</div>`;
+                } else {
+                    html += `<div class="code-block">${escapeHtml(specializedResults.CODE_GEN.code)}</div>`;
+                }
+                
+                html += `</div>`;
+            }
+            
+            // 画像生成結果
+            if (specializedResults.IMAGE_GEN) {
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div class="result-title">
+                                <span class="result-badge badge-image">🎨 生成された画像</span>
+                            </div>
+                        </div>
+                `;
+                
+                if (specializedResults.IMAGE_GEN.error) {
+                    html += `<div class="error-message">${specializedResults.IMAGE_GEN.error}</div>`;
+                } else {
+                    html += `
+                        <div class="image-result">
+                            <img src="${specializedResults.IMAGE_GEN.url}" alt="生成画像" loading="lazy">
+                        </div>
+                        ${specializedResults.IMAGE_GEN.prompt ? `<p style="margin-top: 12px; color: var(--text-secondary); font-size: 0.9em;"><strong>実際のプロンプト:</strong> ${escapeHtml(specializedResults.IMAGE_GEN.prompt)}</p>` : ''}
+                    `;
+                }
+                
+                html += `</div>`;
+            }
+            
+            resultsSection.innerHTML = html;
+            
+            // 結果までスクロール
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
