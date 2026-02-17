@@ -2,7 +2,7 @@
   "name": "AI Orchestrator",
   "short_name": "AI Orch",
   "description": "複数のAIを自動で組み合わせて最適な結果を提供",
-  "start_url": "./",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#6366f1",
