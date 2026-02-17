@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Orchestrator</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f5f5f5; }
+        .card { background: white; padding: 20px; margin: 20px 0; border-radius: 10px; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+        button { width: 100%; padding: 15px; background: #6366f1; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; }
+        .result { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 5px; white-space: pre-wrap; }
+        .error { background: #fee; color: #c00; padding: 15px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🤖 AI Orchestrator</h1>
+    
+    <div class="card">
+        <h3>API設定</h3>
+        <label>Claude API Key:</label>
+        <input type="password" id="key" placeholder="sk-ant-...">
+    </div>
+    
+    <div class="card">
+        <h3>入力</h3>
+        <textarea id="input" rows="5" placeholder="やりたいことを入力...">最近のAIトレンドについて教えて</textarea>
+        <button onclick="run()">実行</button>
+    </div>
+    
+    <div id="output"></div>
+
+    <script>
+        async function run() {
+            const key = document.getElementById('key').value.trim();
+            const input = document.getElementById('input').value.trim();
+            const output = document.getElementById('output');
+            
+            if (!key || !input) {
+                output.innerHTML = '<div class="error">APIキーと入力内容を設定してください</div>';
+                return;
+            }
+            
+            output.innerHTML = '<div class="card">処理中...</div>';
+            
+            try {
+                const res = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-key': key,
+                        'anthropic-version': '2023-06-01'
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1024,
+                        messages: [{ role: 'user', content: input }]
+                    })
+                });
+                
+                if (!res.ok) {
+                    throw new Error('API呼び出しに失敗: ' + res.status);
+                }
+                
+                const data = await res.json();
+                output.innerHTML = '<div class="card"><h3>結果</h3><div class="result">' + data.content[0].text + '</div></div>';
+            } catch (err) {
+                output.innerHTML = '<div class="error">エラー: ' + err.message + '</div>';
+            }
+        }
+    </script>
+</body>
+</html>
